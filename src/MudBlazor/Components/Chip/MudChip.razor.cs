@@ -12,6 +12,7 @@ namespace MudBlazor
     public partial class MudChip : MudComponentBase, IDisposable
     {
         private bool _isSelected;
+        private bool _isCrossChecked;
         [Inject] public Microsoft.AspNetCore.Components.NavigationManager UriHelper { get; set; }
 
         [Inject] public IJSRuntime JsRuntime { get; set; }
@@ -142,6 +143,14 @@ namespace MudBlazor
         public bool IsChecked
         {
             get => _isSelected && ChipSet?.Filter == true;
+        } 
+        public bool IsCrossChecked
+        {
+            get => _isCrossChecked && _isSelected && ChipSet?.Filter == true;
+        }
+        internal void SetCrossCheckedState(bool crossChecked)
+        {
+            _isCrossChecked = crossChecked;
         }
 
         /// <summary>
@@ -155,6 +164,10 @@ namespace MudBlazor
                 if (_isSelected == value)
                     return;
                 _isSelected = value;
+                if (!value)
+                {
+                    _isCrossChecked = false;
+                }
                 StateHasChanged();
             }
         }

@@ -1,5 +1,5 @@
 ﻿@namespace MudBlazor.Docs.Examples
-<MudChipSet @bind-SelectedChips="selected" MultiSelection="true" Filter="filter">
+<MudChipSet @bind-SelectedChips="selected" MultiSelection="true" Filter="filter" TriStateSelection="@tristateselection">
     <MudChip Text="Milk"></MudChip>
     <MudChip Text="Eggs"></MudChip>
     <MudChip Text="Soap"></MudChip>
@@ -12,17 +12,20 @@
 
 @if (selected != null && selected.Length>0)
 {
-    <MudText>You selected @string.Join(", ", selected.Select(chip=>chip.Text)).</MudText>
+    <MudText>You selected @string.Join(", ", selected.Select(chip=>!chip.IsCrossChecked?chip.Text : $"not {chip.Text}")).</MudText>
 }
 else
 {
     <MudText>Nothing selected.</MudText>
 }
 <MudCheckBox @bind-Checked="filter">Filter</MudCheckBox>
+<MudCheckBox @bind-Checked="tristateselection">TriState selection</MudCheckBox>
 
 @code
 {
     bool filter = true;
+    bool tristateselection = false;
+
     MudChip[] selected;
 }
 
