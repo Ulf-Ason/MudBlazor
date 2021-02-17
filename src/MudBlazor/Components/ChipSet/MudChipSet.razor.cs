@@ -25,7 +25,13 @@ namespace MudBlazor
         /// </summary>
         [Parameter]
         public bool MultiSelection { get; set; } = false;
-
+        
+        /// <summary>
+        /// Enables Tri state selection. 
+        /// </summary>
+        [Parameter]
+        public bool TriStateSelection { get; set; } = false;
+        
         /// <summary>
         /// Will not allow to deselect the selected chip in single selection mode.
         /// </summary>
@@ -145,9 +151,20 @@ namespace MudBlazor
         internal async Task OnChipClicked(MudChip chip)
         {
             var wasSelected = chip.IsSelected;
+            var wasCrossChecked = chip.IsCrossChecked;
             if (MultiSelection)
             {
-                chip.IsSelected = !chip.IsSelected;
+                if (TriStateSelection)
+                {
+                    if (!wasSelected)
+                        chip.IsSelected = true;
+                    else if (wasSelected && !wasCrossChecked)
+                        chip.SetCrossCheckedState(true);
+                    else if (wasSelected && wasCrossChecked)
+                        chip.IsSelected = false;
+                }
+                else
+                    chip.IsSelected = !chip.IsSelected;
             }
             else
             {
@@ -155,10 +172,42 @@ namespace MudBlazor
                 {
                     ch.IsSelected = (ch == chip); // <-- exclusively select the one chip only, thus all others must be deselected
                 }
-                if (!Mandatory)
+
+                if (TriStateSelection)
+                {
+                    if (Mandatory)
+                    {
+                        if (wasSelected) 
+                            chip.SetCrossCheckedState(!chip.IsCrossChecked); // switch checked state
+                    }
+                    else
+                    {
+                        if (wasSelected && !wasCrossChecked)
+                            chip.SetCrossCheckedState(true);
+                        else if(wasSelected && wasCrossChecked)
+                            chip.IsSelected = false;
+                    }
+                }
+                else if (!Mandatory)
                     chip.IsSelected = !wasSelected;
             }
             await NotifySelection();
+        }
+
+        private void SetNextTriState(MudChip chip)
+        {
+            System.Console.WriteLine($"Into SetNextTriState");
+            System.Console.WriteLine($"IsSelected: {chip.IsSelected}");
+            System.Console.WriteLine($"IsCrossChecked: {chip.IsCrossChecked}");
+            if (chip.IsSelected && !chip.IsCrossChecked)
+                chip.SetCrossCheckedState(true); // from selected to CrossChecked
+            else if (chip.IsCrossChecked)
+                chip.IsSelected = false; // from CrossChecked to unselected
+            else
+                chip.IsSelected = true; // from unselected to selected
+            System.Console.WriteLine($"Out of SetNextTriState");
+            System.Console.WriteLine($"IsSelected: {chip.IsSelected}");
+            System.Console.WriteLine($"IsCrossChecked: {chip.IsCrossChecked}");
         }
 
         private async Task NotifySelection()

@@ -14,7 +14,14 @@
     }
     else if (IsChecked)
     {
-        <MudIcon Icon="@Icons.Material.Filled.Check" Class="mud-chip-icon" Size="Size.Small" />
+        if (!IsCrossChecked)
+        {
+            <MudIcon Icon="@Icons.Material.Filled.Check" Class="mud-chip-icon" Size="Size.Small" />
+        }
+        else
+        {
+            <MudIcon Icon="@Icons.Material.Filled.Clear" Class="mud-chip-icon" Size="Size.Small" />
+        }
     }
     <span class="mud-chip-content">
         @if (ChildContent == null)
