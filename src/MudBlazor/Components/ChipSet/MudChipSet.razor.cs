@@ -194,22 +194,6 @@ namespace MudBlazor
             await NotifySelection();
         }
 
-        private void SetNextTriState(MudChip chip)
-        {
-            System.Console.WriteLine($"Into SetNextTriState");
-            System.Console.WriteLine($"IsSelected: {chip.IsSelected}");
-            System.Console.WriteLine($"IsCrossChecked: {chip.IsCrossChecked}");
-            if (chip.IsSelected && !chip.IsCrossChecked)
-                chip.SetCrossCheckedState(true); // from selected to CrossChecked
-            else if (chip.IsCrossChecked)
-                chip.IsSelected = false; // from CrossChecked to unselected
-            else
-                chip.IsSelected = true; // from unselected to selected
-            System.Console.WriteLine($"Out of SetNextTriState");
-            System.Console.WriteLine($"IsSelected: {chip.IsSelected}");
-            System.Console.WriteLine($"IsCrossChecked: {chip.IsCrossChecked}");
-        }
-
         private async Task NotifySelection()
         {
             await InvokeAsync(StateHasChanged);
