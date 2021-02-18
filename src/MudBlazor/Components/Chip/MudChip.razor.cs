@@ -116,6 +116,10 @@ namespace MudBlazor
         /// If true, this chip is selected per default if used in a ChipSet. 
         /// </summary>
         [Parameter] public bool Default { get; set; }
+        /// <summary>
+        /// If true, this chip is Crosschecked per default if used in a ChipSet and Default is set to true.
+        /// </summary>
+        [Parameter] public bool DefaultCrossChecked { get; set; }
 
         /// <summary>
         /// Command executed when the user clicks on an element.

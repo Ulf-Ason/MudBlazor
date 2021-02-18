@@ -221,17 +221,19 @@ namespace MudBlazor
             {
                 foreach (var chip in _chips)
                 {
-                    if (!chip.Default)
+                    if (!chip.Default && !chip.DefaultCrossChecked)
                         continue;
-                    chip.IsSelected = chip.Default;
+                    chip.SetCrossCheckedState(chip.DefaultCrossChecked);  // Changed before IsSelected because StateHasChanged() is called in IsSelected
+                    chip.IsSelected = chip.Default || chip.DefaultCrossChecked;
                     anySelected = true;
                 }
             }
             else
             {
-                var defaultChip = _chips.LastOrDefault(chip => chip.Default);
+                var defaultChip = _chips.LastOrDefault(chip => chip.Default || chip.DefaultCrossChecked);
                 if (defaultChip != null)
                 {
+                    defaultChip.SetCrossCheckedState(defaultChip.DefaultCrossChecked);
                     defaultChip.IsSelected = true;
                     anySelected = true;
                 }
