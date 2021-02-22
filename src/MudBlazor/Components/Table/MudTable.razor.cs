@@ -81,13 +81,13 @@ namespace MudBlazor
         /// Returns the class that will get joined with RowClass. Takes the current item and row index.
         /// </summary>
         [Parameter]
-        public Func<T, int, string> RowClassFunc {get;set;}
+        public Func<T, int, string> RowClassFunc { get; set; }
 
         /// <summary>
         /// Returns the style that will get joined with RowStyle. Takes the current item and row index.
         /// </summary>
         [Parameter]
-        public Func<T, int, string> RowStyleFunc {get;set;}
+        public Func<T, int, string> RowStyleFunc { get; set; }
 
         /// <summary>
         /// Returns the item which was last clicked on in single selection mode (that is, if MultiSelection is false)
@@ -153,8 +153,8 @@ namespace MudBlazor
         {
             get
             {
-                if (ServerData != null)
-                    return _server_data.Items;
+                if (HasCallbackData)
+                    return _callback_data.Items;
 
                 if (Filter == null)
                     return Context.Sort(Items);
@@ -168,7 +168,7 @@ namespace MudBlazor
             {
                 if (@PagerContent == null)
                     return FilteredItems; // we have no pagination
-                if (ServerData == null)
+                if (!HasCallbackData)
                 {
                     var filteredItemCount = GetFilteredItemsCount();
                     int lastPageNo;
@@ -188,8 +188,8 @@ namespace MudBlazor
             if (n < 0 || pageSize <= 0)
                 return new T[0];
 
-            if (ServerData != null)
-                return _server_data.Items;
+            if (HasCallbackData)
+                return _callback_data.Items;
 
             return FilteredItems.Skip(n * pageSize).Take(pageSize);
         }
@@ -198,8 +198,8 @@ namespace MudBlazor
         {
             get
             {
-                if (ServerData != null)
-                    return (int)Math.Ceiling(_server_data.TotalItems / (double)RowsPerPage);
+                if (HasCallbackData)
+                    return (int)Math.Ceiling(_callback_data.TotalItems / (double)RowsPerPage);
 
                 return (int)Math.Ceiling(FilteredItems.Count() / (double)RowsPerPage);
             }
@@ -207,8 +207,8 @@ namespace MudBlazor
 
         public override int GetFilteredItemsCount()
         {
-            if (ServerData != null)
-                return _server_data.TotalItems;
+            if (HasCallbackData)
+                return _callback_data.TotalItems;
             return FilteredItems.Count();
         }
 
@@ -274,29 +274,51 @@ namespace MudBlazor
         /// Used only with ServerData
         /// </summary>
         [Parameter] public Func<TableState, Task<TableData<T>>> ServerData { get; set; }
+        /// <summary>
+        /// Supply an async function which (re)loads filtered, paginated and sorted data from server.
+        /// Table will await this func and update based on the returned TableData.
+        /// Used only with ServerData
+        /// </summary>
+        [Parameter] public Func<TableState<T>, Task<TableData<T>>> LocalData { get; set; }
 
-        internal override bool HasServerData => ServerData != null;
+
+        internal override bool HasCallbackData => ServerData != null || LocalData != null;
 
 
-        TableData<T> _server_data = new TableData<T>() { TotalItems = 0, Items = new T[0] };
+        TableData<T> _callback_data = new TableData<T>() { TotalItems = 0, Items = new T[0] };
         private IEnumerable<T> _items;
 
         internal override async Task InvokeServerLoadFunc()
         {
-            if (ServerData == null)
+            if (!HasCallbackData)
                 return;
 
             var label = Context.CurrentSortLabel;
 
-            var state = new TableState
-            {
-                Page = CurrentPage,
-                PageSize = RowsPerPage,
-                SortDirection = Context.SortDirection,
-                SortLabel = label?.SortLabel
-            };
 
-            _server_data = await ServerData(state);
+            if (ServerData != null)
+            {
+                var state = new TableState
+                {
+                    Page = CurrentPage,
+                    PageSize = RowsPerPage,
+                    SortDirection = Context.SortDirection,
+                    SortLabel = label?.SortLabel
+                };
+                _callback_data = await ServerData(state);
+            }
+            else
+            {
+                var state = new TableState<T>
+                {
+                    Page = CurrentPage,
+                    PageSize = RowsPerPage,
+                    SortLabel = label?.SortLabel,
+                    SortDirection = Context.SortDirection,
+                    SortBy = label?.SortBy
+                };
+                _callback_data = await LocalData(state);
+            }
             StateHasChanged();
             Context?.PagerStateHasChanged?.Invoke();
         }
