@@ -117,6 +117,50 @@ namespace MudBlazor
         [Parameter] public int CurrentPage { get; set; }
 
         /// <summary>
+        /// Set to true to enable selection of multiple rows with check boxes. 
+        /// </summary>
+        [Parameter] public bool MultiSelection { get; set; }
+
+        /// <summary>
+        /// Returns the item which was last clicked on in single selection mode (that is, if MultiSelection is false)
+        /// </summary>
+        [Parameter]
+        public T SelectedItem
+        {
+            get => _selectedItem;
+            set
+            {
+                if (EqualityComparer<T>.Default.Equals(SelectedItem, value))
+                    return;
+                _selectedItem = value;
+                SelectedItemChanged.InvokeAsync(value);
+            }
+        }
+        private T _selectedItem;
+        /// <summary>
+        /// Callback is called when a row has been clicked and returns the selected item.
+        /// </summary>
+        [Parameter] public EventCallback<T> SelectedItemChanged { get; set; }
+
+        /// <summary>
+        /// If MultiSelection is true, this returns the currently selected items. You can bind this property and the initial content of the HashSet you bind it to will cause these rows to be selected initially.
+        /// </summary>
+        [Parameter] public HashSet<T> SelectedItems
+        {
+            get => _selectedItems;
+            set
+            {
+                _selectedItems = value;
+                SelectedItemsChanged.InvokeAsync(value);
+            }
+        }
+        private HashSet<T>  _selectedItems;
+
+        /// <summary>
+        /// Callback is called whenever items are selected or deselected in multi selection mode.
+        /// </summary>
+        [Parameter] public EventCallback<HashSet<T>> SelectedItemsChanged { get; set; }
+        /// <summary>
         /// Supply an async function which (re)loads filtered, paginated and sorted data from server.
         /// Table will await this func and update based on the returned TableData.
         /// Used only with ServerData

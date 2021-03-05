@@ -5,8 +5,8 @@
 @if (ServerData != null || (_items != null && _items.Any()))
 {
 <MudTable @ref="mudTable" Items="@_items" Class="@Classname" Style="@Style" ShowFooter="@ShowFooter" 
-          Hover="@Hover" Breakpoint="@Breakpoint" ReadOnly="@ReadOnly" FixedHeader="@FixedHeader" Height="@Height" 
-          @bind-RowsPerPage ="RowsPerPage" @bind-CurrentPage="CurrentPage"  ServerData="@ServerData">
+          Hover="@Hover" Breakpoint="@Breakpoint" ReadOnly="@ReadOnly" FixedHeader="@FixedHeader" Height="@Height" MultiSelection="@MultiSelection"
+          @bind-RowsPerPage ="RowsPerPage" @bind-CurrentPage="CurrentPage" @bind-SelectedItem="SelectedItem" @bind-SelectedItems="SelectedItems" ServerData="@ServerData">
     <HeaderContent>
         <CascadingValue Value="MudBaseColumn.Rendermode.Header" Name="Mode">
             @Columns(Def)
