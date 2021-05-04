@@ -161,6 +161,11 @@ namespace MudBlazor
         /// </summary>
         [Parameter] public EventCallback<HashSet<T>> SelectedItemsChanged { get; set; }
         /// <summary>
+        /// Button click event.
+        /// </summary>
+        [Parameter] public EventCallback<TableRowClickEventArgs<T>> OnRowClick { get; set; } 
+        
+        /// <summary>
         /// Supply an async function which (re)loads filtered, paginated and sorted data from server.
         /// Table will await this func and update based on the returned TableData.
         /// Used only with ServerData
